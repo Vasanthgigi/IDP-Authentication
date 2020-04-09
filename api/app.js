@@ -7,7 +7,64 @@ var logger = require('morgan');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
+const passport = require('passport');
+const FacebookStrategy = require('passport-facebook').Strategy;
+
 var app = express();
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser(function(user, done)
+ {
+   debugger;
+   console.log('Hello world3');
+
+  done(null, user);
+});
+
+passport.deserializeUser(function(user, done) 
+{
+  debugger;
+  console.log('Hello world2');
+
+  done(null, user);
+});
+
+console.log('Hello world1');
+
+
+passport.use(
+  new FacebookStrategy(
+    {
+      clientID: '253621498997615',
+      clientSecret: '9d9371f64a16f4a1db81628a9a71efc8',
+      callbackURL: 'http://localhost:3000'
+    },
+    function(accessToken, refreshToken, profile, cb) {
+      //console.log('profile', profile);
+      console.log('Hello world');
+
+      debugger;
+      return cb(null, profile);
+    }
+  )
+);
+
+app.get('/auth/facebook', passport.authenticate('facebook'));
+
+app.get(
+  '/auth/facebook/callback',
+  passport.authenticate('facebook', { failureRedirect: '/' }),
+  function(req, res) {
+    debugger;
+    console.log('Hello world');
+    console.log('req', req.user);
+    res.render('data', {
+      user: req.user
+    });
+  }
+);
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
