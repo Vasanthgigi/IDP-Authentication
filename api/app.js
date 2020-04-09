@@ -3,31 +3,32 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var session = require('express-session');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
+const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
 
 var app = express();
 
+app.use(session({
+  secret: 'IDP',
+  resave: true,
+  saveUninitialized: true
+}));
 app.use(passport.initialize());
 app.use(passport.session());
 
 passport.serializeUser(function(user, done)
  {
-   debugger;
-   console.log('Hello world3');
-
   done(null, user);
 });
 
 passport.deserializeUser(function(user, done) 
 {
-  debugger;
-  console.log('Hello world2');
-
   done(null, user);
 });
 
@@ -42,10 +43,6 @@ passport.use(
       callbackURL: 'https://18.188.70.2:443/'
     },
     function(accessToken, refreshToken, profile, cb) {
-      //console.log('profile', profile);
-      console.log('Hello world');
-
-      debugger;
       return cb(null, profile);
     }
   )
@@ -57,14 +54,36 @@ app.get(
   '/auth/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/' }),
   function(req, res) {
-    debugger;
-    console.log('Hello world');
-    console.log('req', req.user);
     res.render('data', {
       user: req.user
     });
   }
 );
+
+passport.use(new LinkedInStrategy({
+  clientID: "86bcjuuyav3p0y",
+  clientSecret: "iSwNCgHi4R2AdIFX",
+  callbackURL: "https://18.188.70.2:443/",
+  scope: ['r_emailaddress', 'r_liteprofile'],
+},
+function(token, tokenSecret, profile, done) {
+  return done(null, profile);
+}
+));
+
+app.get('/auth/linkedin',
+passport.authenticate('linkedin'));
+
+app.get('/auth/linkedin/callback', 
+  passport.authenticate('linkedin', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+  });
+
+// app.get('/auth/linkedin',
+// passport.authenticate('linkedin', { scope: ['r_basicprofile', 'r_emailaddress'] }));
+
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
