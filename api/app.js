@@ -81,10 +81,6 @@ app.get('/auth/linkedin/callback',
     res.redirect('/');
   });
 
-// app.get('/auth/linkedin',
-// passport.authenticate('linkedin', { scope: ['r_basicprofile', 'r_emailaddress'] }));
-
-
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
