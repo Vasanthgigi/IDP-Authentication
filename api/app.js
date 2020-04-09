@@ -39,7 +39,7 @@ passport.use(
     {
       clientID: '253621498997615',
       clientSecret: '9d9371f64a16f4a1db81628a9a71efc8',
-      callbackURL: 'http://18.188.70.2:443/'
+      callbackURL: 'https://18.188.70.2:443/'
     },
     function(accessToken, refreshToken, profile, cb) {
       //console.log('profile', profile);
