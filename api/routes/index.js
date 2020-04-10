@@ -3,9 +3,7 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  debugger;
-
-  res.render('index', { title: 'Express' });
+  res.render('index', { title: 'IDP-Authentication' });
 });
 
 module.exports = router;
