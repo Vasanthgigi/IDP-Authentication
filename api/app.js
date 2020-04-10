@@ -11,6 +11,7 @@ var usersRouter = require('./routes/users');
 const passport = require('passport');
 const FacebookStrategy = require('passport-facebook').Strategy;
 const LinkedInStrategy = require('passport-linkedin-oauth2').Strategy;
+const GitHubStrategy = require('passport-github').Strategy;
 
 var app = express();
 
@@ -22,18 +23,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.serializeUser(function(user, done)
- {
-  done(null, user);
-});
-
-passport.deserializeUser(function(user, done) 
-{
-  done(null, user);
-});
-
-console.log('Hello world1');
-
+//Facebook
 
 passport.use(
   new FacebookStrategy(
@@ -60,10 +50,11 @@ app.get(
   }
 );
 
+//Linkedln
 passport.use(new LinkedInStrategy({
   clientID: "86bcjuuyav3p0y",
   clientSecret: "iSwNCgHi4R2AdIFX",
-  callbackURL: "https://18.188.70.2:443/",
+  callbackURL: "http://18.188.70.2:3000/",
   scope: ['r_emailaddress', 'r_liteprofile'],
 },
 function(token, tokenSecret, profile, done) {
@@ -76,6 +67,30 @@ passport.authenticate('linkedin'));
 
 app.get('/auth/linkedin/callback', 
   passport.authenticate('linkedin', { failureRedirect: '/login' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('/');
+  });
+
+
+ //Github
+ passport.use(new GitHubStrategy({
+  clientID: "7b0c8e9ce17515cb19d1",
+  clientSecret: "c484bc0c2ca834228651bd0509d0331284cda969",
+  callbackURL: "http://18.188.70.2:3000/",
+},
+function(accessToken, refreshToken, profile, cb) {
+  User.findOrCreate({ githubId: profile.id }, function (err, user) {
+    return cb(err, user);
+  });
+}
+));
+
+app.get('/auth/github',
+  passport.authenticate('github'));
+
+app.get('/auth/github/callback', 
+  passport.authenticate('github', { failureRedirect: '/login' }),
   function(req, res) {
     // Successful authentication, redirect home.
     res.redirect('/');
